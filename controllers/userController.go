@@ -110,3 +110,24 @@ func UpdateUser(c *gin.Context) {
     // Return the updated user
     utils.SuccessResponse(c, http.StatusOK, existingUser, nil)
 }
+
+func DeleteUser(c *gin.Context) {
+    // Get id from url parameter
+    id := c.Param("id")
+    
+    // Check if user exists
+    var user models.User
+    if result := database.DB.First(&user, id); result.Error != nil {
+        utils.ErrorResponse(c, http.StatusNotFound, "User not found")
+        return
+    }
+    
+    // Delete user from database
+    if result := database.DB.Delete(&user); result.Error != nil {
+        utils.ErrorResponse(c, http.StatusInternalServerError, result.Error.Error())
+        return
+    }
+    
+    // Return success response
+    utils.SuccessResponse(c, http.StatusOK, gin.H{"message": "User deleted successfully"}, nil)
+}
